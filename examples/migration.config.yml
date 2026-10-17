@@ -1,0 +1,42 @@
+# migration-pipeline の設定例。プロジェクトのルートに migration.config.yml としてコピーして書き換える。
+#
+#   cp examples/migration.config.yml ./migration.config.yml
+#
+# パスは、このファイルを置いた場所からの相対パス。
+
+# 旧システム（移行元）。legacy-analyst だけが読む。
+legacy:
+  name: legacy-monolith
+  path: ./legacy-monolith
+  routes: routes/api.php
+
+# 新システム。service-router が既存エンドポイントの抽出と配置判定に使う。
+# **responsibility が配置判定の根拠になる。** 「注文」ではなく
+# 「注文の作成・変更・キャンセル、出荷指示まで。請求は含まない」のように、
+# 扱う業務と扱わない業務の境目が分かるように書く。曖昧だと判定もぶれる。
+services:
+  - name: auth-service
+    path: ./auth-service
+    routes: routes/api.php
+    responsibility: >-
+      ログイン・トークン発行・パスワード再設定、ユーザーとロールの管理。
+      業務データ（注文・商品）は持たない。
+  - name: order-service
+    path: ./order-service
+    routes: routes/api.php
+    responsibility: >-
+      注文の作成・変更・キャンセルと、注文一覧・詳細の参照。出荷指示まで。
+      請求書の発行と入金消し込みは含まない（billing-service）。
+  - name: billing-service
+    path: ./billing-service
+    routes: routes/api.php
+    responsibility: >-
+      請求書の発行・再発行、入金の記録と消し込み。注文データは order-service から取得する。
+
+# フロントエンド。fe-analyst だけが読む。
+frontend:
+  path: ./frontend
+  src: src
+
+# 各エージェントの成果物の出力先。{output_dir}/{domain}/*.md に書かれる。
+output_dir: docs/migration

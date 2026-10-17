@@ -1,3 +1,5 @@
 .DS_Store
-migration.config.yml
+# 実際の設定（各社のリポジトリ構成）はルートに置くので追跡しない。
+# examples/ の設定例まで巻き込まないよう、ルート直下だけに限る。
+/migration.config.yml
 docs/
