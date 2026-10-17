@@ -12,7 +12,7 @@ model: opus
 
 - `fe-contract.md`（フロントが呼んでいるもの）
 - `legacy-contract.md`（旧システムの実装）
-- 新システム側の既存エンドポイント
+- `service-contract.md`（新システムに既にあるもの。service-router が Step 1 で出力）
 
 ## 役割: 三角照合
 

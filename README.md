@@ -2,15 +2,22 @@
 
 **モノリスからの API 移行を、AI エージェントの分業で最後まで回す。**
 
+<p>
+  <img alt="Claude Code" src="https://img.shields.io/badge/Claude_Code-skills_+_subagents-D97757">
+  <img alt="対象" src="https://img.shields.io/badge/対象-API移行の実行-2ea44f">
+  <img alt="framework-agnostic" src="https://img.shields.io/badge/framework-Laravel_/_Django_/_Rails-6E56CF">
+  <img alt="License" src="https://img.shields.io/badge/License-MIT-green">
+</p>
+
 移行は「エンドポイント数 × 検証項目数」の掛け算になり、1会話では終わりません。
 かといって人間が毎回指示を出すと、今度は人間がボトルネックになります。
 
 このリポジトリは、**ドメイン単位で自律的に進み、判断が要る時だけ止まる**
 移行ループと、その分業を担う専門エージェント一式です。
 
-- [migration-loop](skills/migration-loop.md) — 全ドメインを順に処理するループ
-- [migration-pipeline](skills/migration-pipeline.md) — 1ドメイン分の手順
-- [agents/](agents/) — 専門エージェント8個
+- [migration-loop](skills/migration-loop/SKILL.md) — 全ドメインを順に処理するループ
+- [migration-pipeline](skills/migration-pipeline/SKILL.md) — 1ドメイン分の手順
+- [agents/](agents/) — 専門エージェント9個
 
 実際のマイクロサービス移行案件（Laravel・4サービス）で運用した構成を、
 案件固有の情報を除いて一般化したものです。
@@ -67,6 +74,7 @@
 | 抽出 | `legacy-analyst` | 旧システムの実装（正常系・非正常系） |
 | 抽出 | `service-router` | 新システムの既存EPと配置判定 |
 | 設計 | `schema-architect` | 三角照合・原因タグ付与・確定契約 |
+| 計画 | `planner` | 変更ファイル・倣う既存実装・影響範囲・検証手順を書いた対処計画（実装しない） |
 | 実装 | `be-engineer` / `fe-engineer` | 承認済み計画に沿って実装 |
 | 検証 | `contract-verifier` | 契約 vs 実装 |
 | 検証 | `integration-verifier` | フロントの期待値 vs 実装 |
@@ -80,13 +88,29 @@
 
 ## 使い方
 
+### 1. スキルとエージェントを入れる
+
+移行作業をするプロジェクトの `.claude/` に置きます（全プロジェクトで使うなら `~/.claude/`）。
+
 ```bash
-cp examples/migration.config.yml ./migration.config.yml
-cp examples/schedule.md ./docs/schedules/migration.md
+git clone https://github.com/Akinori901/migration-pipeline
+cd <移行作業をするプロジェクト>
+mkdir -p .claude/skills .claude/agents
+cp -r ../migration-pipeline/skills/* .claude/skills/   # migration-loop / migration-pipeline
+cp ../migration-pipeline/agents/*.md .claude/agents/    # 専門エージェント 9 個
+```
+
+### 2. 設定とスケジュールを書いて起動する
+
+```bash
+cp ../migration-pipeline/examples/migration.config.yml ./migration.config.yml
+mkdir -p docs/schedules
+cp ../migration-pipeline/examples/schedule.md ./docs/schedules/migration.md
 # 自社の構成とドメイン一覧に書き換える
 
 # Claude Code から
-/migration-loop
+/migration-loop                 # 未着手のドメインを順に処理する
+/migration-pipeline orders      # 1 ドメインだけ流す
 ```
 
 サービスの分割と責務は `migration.config.yml` に書きます。
