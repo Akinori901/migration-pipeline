@@ -43,7 +43,7 @@ argument-hint: ドメイン名（例: orders）/ 画面パス / エンドポイ�
 Step 1（並行実行）
   fe-analyst      — フロントが実際に呼んでいるエンドポイントと期待レスポンスを抽出
   legacy-analyst  — 旧システム側の契約（パラメータ・バリデーション・レスポンス）を抽出
-  service-router  — 新システム側の既存エンドポイントを抽出
+  service-router  — 新システム側の既存エンドポイントを抽出（service-contract.md）
 
 Step 2（順次 — Step 1 の3出力を入力）
   schema-architect — 三者を突き合わせ、不一致に原因タグを付与し、確定API契約を設計
